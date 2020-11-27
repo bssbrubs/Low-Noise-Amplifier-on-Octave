@@ -16,7 +16,7 @@ clc;
 %              Vgg = -0.485 Volts  Igg =   0.1 uA
 vdd = 2.5; %Power source voltage
 idd = 0.0524; %current source in ampere
-powerdB = (2.5^2)*idd; %power in dB
+powerdB = vdd*idd; %power in dB
 
 %Characteristic impendance
 z0 = 50;
@@ -60,7 +60,7 @@ to = 25; %reference temperature
 linear_gain = linear_gain(s_parameters);
 log_gain = log_gain(s_parameters);
 figure (1);
-plot(frequency, linear_gain, frequency, log_gain);
+plot(frequency(10:20), linear_gain(10:20), frequency(10:20), log_gain(10:20));
 title ("Gain x Frequency");
 h = legend ({"Linear"}, "Logarithm");
 legend (h, "location", "northeastoutside");
@@ -70,7 +70,7 @@ ylabel ("Gain (dB)");
 %Loss
 loss = loss(s_parameters);
 figure (2);
-plot(frequency, loss(1, :), frequency, loss(2, :));
+plot(frequency(10:20), loss(1, 10:20), frequency(10:20), loss(2, 10:20));
 title ("Loss x Frequency");
 h = legend ({"Input Return"}, "Output Return");
 legend (h, "location", "northeastoutside");
@@ -78,21 +78,22 @@ xlabel ("Frequency (GHz)");
 ylabel ("Loss (dB)");
 
 %Power Output
-power_output = power_output(linear_gain, powerdB);
+power_output = power_output(linear_gain, powerdB, loss);
 figure (3);
-plot(frequency, power_output);
+plot(frequency(10:20), power_output(10:20));
 title ("Power Output  x Frequency");
 xlabel ("Frequency (GHz)");
-ylabel ("Power Output (dB)");
+ylabel ("Power Output (dBm)");
 
 %Noise parameters
-rn = 10; %equivalent Noise resistance
 fmin = 3.5; %figure noise minimal in dB
+noise_factor = (10^fmin);
+rn= z0/4*(noise_factor-1); %equivalent Noise resistance
 
 %Noise Figure
 figure_noise = noise_figure(s_parameters, fmin, rn, z0);
 figure (4);
-plot(frequency, figure_noise);
+plot(frequency(13:20), figure_noise(13:20));
 title ("Figure Noise  x Frequency");
 xlabel ("Frequency (GHz)");
 ylabel ("Figure Noise (dB)");
@@ -100,7 +101,7 @@ ylabel ("Figure Noise (dB)");
 %VSWR - Voltage standing wave ratio
 vswr = vswr(s_parameters);
 figure (5);
-plot(frequency, vswr(1, :), frequency, vswr(2, :));
+plot(frequency(10:20), vswr(1, 10:20), frequency(10:20), vswr(2, 10:20));
 title ("Voltage Standing Wave Ratio  x Frequency");
 xlabel ("Frequency (GHz)");
 ylabel ("VSWR (dB)");
